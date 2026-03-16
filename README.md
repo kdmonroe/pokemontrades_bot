@@ -6,101 +6,57 @@ The system combines a **user inventory GUI**, a **fine-tuned large language mode
 
 ---
 
-## Overview
+## Data Ingestion & Trade Detection Pipeline
 
-Users log in via email to access a web interface where they can maintain a structured inventory of Pokémon they own. The interface allows users to specify attributes such as IV values, gender, abilities, forms, language, special event status, Pokéball type, and shiny status. Users can preview and export their inventory as a CSV formatted according to the schema used for LLM outputs that characterize Pokémon trades.
+The system continuously monitors new trade posts from the subreddit r/pokemontrades on Reddit and processes them through an automated pipeline that transforms unstructured post text into structured trade data and actionable notifications for users.
 
-Inventory data is stored in **AWS DynamoDB** allow the system to persist user data and compare it against new trade posts as they appear.
+### 1. Post Ingestion
 
----
+New submissions are retrieved from r/pokemontrades using the PRAW client, which interfaces with the Reddit API. The ingestion service periodically scans for newly published posts and forwards their titles and bodies into the parsing pipeline.
 
-## Real-Time Trade Detection Pipeline
+### 2. LLM Trade Parsing
 
-The system continuously monitors new posts from **r/pokemontrades** and processes them through an automated pipeline:
+Each Reddit post is passed to a **fine-tuned large language model** trained to extract structured Pokémon trade information from natural language posts.
 
-1. **Post Collection**
+The model converts free-form Reddit trade posts into structured JSON fields such as:
 
-   * New posts from r/pokemontrades are retrieved through the Reddit API via PRAW Python client.
+* offered Pokémon
+* requested Pokémon
+* IV values
+* genders
+* natures
+* abilities
+* forms
+* languages
+* special events (that is, Pokemon gained from specific events)
+* Pokeballs caught in
+* shiny status
+* Pokemon game version
+* type of post (trade, touch trade, giveaway, union circle, item trade, event, redeem or non-actionable)
 
-2. **LLM Trade Parsing**
+This structured output follows the schema used throughout the system for representing Pokémon trades.
 
-   * Each post is parsed using a **fine-tuned LLM** trained to extract structured trade information such as:
+### 3. Trade Normalization
 
-     * offered Pokémon
-     * requested Pokémon
-     * IVs
-     * genders
-     * natures
-     * abilities
-     * forms
-     * language
-     * special conditions
-     * pokeballs caught in
-     * shiny
-     * type of post (trade, giveaway, touch trade, item trade, union circle, or non-actionable)
+The parsed output is validated and normalized to ensure consistency with the internal schema used for user inventories and CSV exports. This allows downstream components to reliably compare trades and inventory data.
 
-3. **Structured Trade Representation**
+### 4. Inventory Matching
 
-   * The LLM outputs a structured JSON representation of the trade offer.
+Parsed trade data is compared against user inventories stored in **AWS DynamoDB**. The system identifies when:
 
-4. **Inventory Matching**
+* a trade offers a Pokémon that a user **needs to complete their inventory**, or
+* a user possesses a Pokémon that **fulfills the requirements of a posted trade**.
 
-   * The parsed trade is compared against user inventories stored in DynamoDB.
-   * The system identifies:
+This matching process allows the platform to detect relevant opportunities for individual users.
 
-     * Pokémon the user **needs to complete their inventory**
-     * Pokémon the user **already owns that could fulfill the trade**
+### 5. Real-Time Email Notification
 
-5. **Email Notification**
+When a trade post matches a user’s inventory needs, the system generates a notification and sends a **real-time email alert** to subscribed users. The email includes information about the trade and a link to the original Reddit post so the user can quickly respond.
 
-   * When a relevant match is detected, the system sends a **real-time email alert** to subscribed users notifying them of the trade opportunity.
+### 6. Continuous Monitoring
 
----
-
-## User Interface
-
-The inventory GUI allows users to manage Pokémon data through a table interface where each row represents a Pokémon. Users can:
-
-* mark ownership of a Pokémon
-* enter IV values (0–31)
-* select genders, natures, abilities, forms, languages, special events, and Pokéball type
-* indicate shiny status
-
-The interface includes the following actions:
-
-* **Upload** – send the generated CSV to the backend for storage in DynamoDB
-* **Export** – download the current inventory as a CSV
-* **Preview** – view the generated CSV before exporting
-* **Update** – synchronize the GUI inventory with the backend database
-* **Clear** – reset all interface inputs
+The ingestion and parsing pipeline runs continuously, enabling the system to surface trade opportunities shortly after they appear on r/pokemontrades.
 
 ---
 
-## Architecture
-
-The system is composed of three primary components:
-
-**Frontend**
-
-* Inventory management GUI
-* CSV generation and preview
-
-**Backend API**
-
-* Authentication
-* Inventory management
-* CSV ingestion and updates
-* Trade matching logic
-
-**Automation Pipeline**
-
-* Reddit post ingestion
-* Fine-tuned LLM trade parser
-* Inventory matching engine
-* Email notification service
-
----
-
-## Purpose
-
-This project bridges **community trade activity and structured data pipelines**, enabling automated detection of relevant Pokémon trades and helping collectors quickly identify opportunities to complete their inventories.
+This pipeline enables the platform to bridge **community-driven trade activity and structured data analysis**, allowing users to automatically discover trade opportunities that help complete their Pokémon collections.
