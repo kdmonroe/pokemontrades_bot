@@ -1,0 +1,399 @@
+{% extends "base.html" %}
+{% block title %}Inventory — PokéTrade Vault{% endblock %}
+
+{% block head %}
+<style>
+    .grid-wrapper {
+        position: relative;
+    }
+
+    .grid-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 40px;
+        background: linear-gradient(to right, transparent, var(--bg-primary, rgba(22, 22, 30, 0.8)));
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    .pokeball-header {
+        writing-mode: vertical-lr;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+    }
+
+    .modal-backdrop {
+        background: rgba(22, 22, 30, 0.85);
+        backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+        animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes modal-in {
+        from { opacity: 0; transform: translateY(10px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .toolbar-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-family: 'Chakra Petch', sans-serif;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .stat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-family: 'JetBrains Mono', monospace;
+        border-radius: 4px;
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+    }
+
+    .filter-select {
+        background-image: url('data:image/svg+xml,<%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6b8a%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E');
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        padding-right: 28px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-6 py-6">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="font-display font-bold text-xl tracking-wide">
+                <span class="text-dex-red glow-red-text">Inventory</span> Grid
+            </h1>
+            <div class="flex items-center gap-3 mt-2">
+                <div class="stat-chip">
+                    <div class="w-1.5 h-1.5 rounded-full bg-dex-mint"></div>
+                    <span class="text-dex-muted">{{ inventory | length }} Pokemon</span>
+                </div>
+                <div class="stat-chip">
+                    <div class="w-1.5 h-1.5 rounded-full bg-dex-amber"></div>
+                    <span class="text-dex-muted">{{ pokeball_types | length }} Ball Types</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="flex items-center gap-2 flex-wrap">
+            <!-- Add Pokemon (prominent, first) -->
+            <button onclick="document.getElementById('add-modal').classList.remove('hidden')"
+                    class="toolbar-btn bg-dex-red/10 border border-dex-red/20 text-dex-red
+                           hover:bg-dex-red/20 hover:border-dex-red/40">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Add Pokemon
+            </button>
+
+            <div class="w-px h-5 bg-dex-border mx-1"></div>
+
+            <!-- Search -->
+            <div class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dex-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text"
+                       name="q"
+                       placeholder="Search inventory..."
+                       hx-get="/inventory/filter"
+                       hx-trigger="keyup changed delay:300ms"
+                       hx-target="#inventory-grid"
+                       hx-swap="innerHTML"
+                       hx-include="[name='pokeball']"
+                       class="pl-9 pr-3 py-[7px] w-52 text-xs font-mono
+                              bg-dex-dark border border-dex-border rounded-md
+                              text-dex-cream placeholder:text-dex-muted/40
+                              focus:border-dex-red/40 focus:ring-1 focus:ring-dex-red/20
+                              focus:outline-none transition-all duration-200">
+            </div>
+
+            <!-- Pokeball Filter -->
+            <select name="pokeball"
+                    hx-get="/inventory/filter"
+                    hx-trigger="change"
+                    hx-target="#inventory-grid"
+                    hx-swap="innerHTML"
+                    hx-include="[name='q']"
+                    class="filter-select px-3 py-[7px] text-xs font-mono appearance-none cursor-pointer
+                           bg-dex-dark border border-dex-border rounded-md
+                           text-dex-muted focus:border-dex-red/40 focus:outline-none
+                           transition-all duration-200">
+                <option value="">All Balls</option>
+                {% for ball in pokeball_types %}
+                <option value="{{ ball }}">{{ ball | replace('_', ' ') | title }}</option>
+                {% endfor %}
+            </select>
+
+            <div class="w-px h-5 bg-dex-border mx-1"></div>
+
+            <!-- Export CSV -->
+            <a href="{{ url_for('inventory.export') }}"
+               class="toolbar-btn bg-dex-panel border border-dex-border text-dex-cream
+                      hover:border-dex-mint/30 hover:text-dex-mint hover:bg-dex-mint/5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Export CSV
+            </a>
+
+            <!-- Upload -->
+            <a href="{{ url_for('inventory.upload_form') }}"
+               class="toolbar-btn bg-dex-panel border border-dex-border text-dex-cream
+                      hover:border-dex-blue/30 hover:text-dex-blue hover:bg-dex-blue/5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                Upload
+            </a>
+        </div>
+    </div>
+
+    <!-- Inventory Grid -->
+    <div class="grid-wrapper bg-dex-dark border border-dex-border rounded-xl overflow-hidden glow-red">
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+                <!-- Header -->
+                <thead>
+                    <tr class="bg-dex-panel/60">
+                        <!-- Sticky sprite header -->
+                        <th class="sticky left-0 z-20 bg-dex-panel px-1 py-3"
+                            style="min-width: 52px; width: 52px;"></th>
+
+                        <!-- Sticky name header -->
+                        <th class="sticky z-20 bg-dex-panel px-3 py-3 text-left
+                                   font-display font-semibold text-xs tracking-widest uppercase text-dex-muted"
+                            style="left: 52px; min-width: 160px;">
+                            Pokemon
+                        </th>
+
+                        <!-- Sticky abilities header -->
+                        <th class="sticky z-20 bg-dex-panel px-3 py-3 text-left
+                                   font-display font-semibold text-xs tracking-widest uppercase text-dex-muted
+                                   border-r-2 border-dex-red/10 shadow-[2px_0_8px_rgba(0,0,0,0.3)]"
+                            style="left: 240px;">
+                            <div>
+                                Abilities
+                                <div class="text-[9px] font-mono normal-case tracking-normal text-dex-muted/50 mt-0.5 font-normal whitespace-nowrap">
+                                    H = Hidden &middot; &#x27F3; to cycle
+                                </div>
+                            </div>
+                        </th>
+
+                        <!-- Pokeball type headers -->
+                        {% for ball in pokeball_types %}
+                        <th class="px-1 py-2 min-w-[40px]">
+                            <div class="flex flex-col items-center gap-1.5">
+                                <img src="{{ pokeball_sprites[ball] }}" alt="{{ ball }}"
+                                     class="w-5 h-5 opacity-70" style="image-rendering: pixelated;">
+                                <div class="pokeball-header font-display font-semibold text-dex-muted/80 h-24 flex items-center"
+                                     style="font-size: 13px; letter-spacing: 0.04em;">
+                                    {{ ball | replace('_', ' ') }}
+                                </div>
+                            </div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <!-- Body (HTMX target) -->
+                <tbody id="inventory-grid">
+                    {% include 'inventory/_grid_table.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Grid footer info -->
+    <div class="flex items-center justify-between mt-3 px-1">
+        <p class="text-[10px] font-mono text-dex-muted/40 tracking-wide">
+            CLICK CELL TO TOGGLE &mdash; HTMX LIVE UPDATE
+        </p>
+        <p class="text-[10px] font-mono text-dex-muted/40 tracking-wide">
+            SCROLL &rarr; FOR MORE BALL TYPES
+        </p>
+    </div>
+</div>
+
+<!-- Add Pokemon Modal -->
+<div id="add-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+    <div class="modal-backdrop absolute inset-0" onclick="document.getElementById('add-modal').classList.add('hidden')"></div>
+    <div class="modal-content relative bg-dex-dark border border-dex-border rounded-xl p-6 w-full max-w-md mx-4 glow-red">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="font-display font-bold text-lg text-dex-cream">
+                <span class="text-dex-red">+</span> Add Pokemon
+            </h2>
+            <button onclick="document.getElementById('add-modal').classList.add('hidden')"
+                    class="text-dex-muted hover:text-dex-cream transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <form hx-post="/inventory/add"
+              hx-target="#inventory-grid"
+              hx-swap="innerHTML"
+              class="space-y-4">
+            <div>
+                <label class="block text-xs font-display font-medium tracking-widest uppercase text-dex-muted mb-2">
+                    Pokemon Name
+                </label>
+                <input type="text" name="name" id="add-pokemon-name" required
+                       placeholder="e.g. Pikachu"
+                       class="w-full px-4 py-2.5 rounded-lg bg-dex-black border border-dex-border
+                              text-dex-cream font-mono text-sm placeholder:text-dex-muted/40
+                              focus:border-dex-red/40 focus:ring-1 focus:ring-dex-red/20 focus:outline-none
+                              transition-all duration-200">
+            </div>
+
+            <div>
+                <label class="block text-xs font-display font-medium tracking-widest uppercase text-dex-muted mb-2">
+                    Ability
+                </label>
+                <select name="abilities" id="add-ability-select"
+                        class="w-full px-4 py-2.5 rounded-lg bg-dex-black border border-dex-border
+                               text-dex-cream font-mono text-sm appearance-none
+                               focus:border-dex-red/40 focus:ring-1 focus:ring-dex-red/20 focus:outline-none
+                               transition-all duration-200">
+                    <option value="">Type a name above to load abilities</option>
+                </select>
+                <p id="add-ability-status" class="text-[9px] font-mono text-dex-muted/40 mt-1"></p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-display font-medium tracking-widest uppercase text-dex-muted mb-2">Form</label>
+                    <select name="form"
+                            class="w-full px-4 py-2.5 rounded-lg bg-dex-black border border-dex-border
+                                   text-dex-cream font-mono text-sm appearance-none
+                                   focus:border-dex-red/40 focus:ring-1 focus:ring-dex-red/20 focus:outline-none
+                                   transition-all duration-200">
+                        <option value="">Regular</option>
+                        {% for f in pokemon_forms %}
+                        {% if f != 'regular' %}
+                        <option value="{{ f }}">{{ f | title }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-display font-medium tracking-widest uppercase text-dex-muted mb-2">Special</label>
+                    <input type="text" name="special"
+                           placeholder="e.g. Event, Titan Mark"
+                           class="w-full px-4 py-2.5 rounded-lg bg-dex-black border border-dex-border
+                                  text-dex-cream font-mono text-sm placeholder:text-dex-muted/40
+                                  focus:border-dex-red/40 focus:ring-1 focus:ring-dex-red/20 focus:outline-none
+                                  transition-all duration-200">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-display font-medium tracking-widest uppercase text-dex-muted mb-2">
+                    IVs
+                </label>
+                <input type="number" name="iv" min="0" max="31"
+                       placeholder="0–31"
+                       class="w-full px-4 py-2.5 rounded-lg bg-dex-black border border-dex-border
+                              text-dex-cream font-mono text-sm placeholder:text-dex-muted/40
+                              focus:border-dex-red/40 focus:ring-1 focus:ring-dex-red/20 focus:outline-none
+                              transition-all duration-200">
+                <p class="text-[9px] font-mono text-dex-muted/40 mt-1">Optional — leave blank if unknown</p>
+            </div>
+
+            <div class="flex items-center pt-1">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="shiny"
+                           class="w-4 h-4 rounded border-dex-border bg-dex-black text-dex-amber
+                                  focus:ring-dex-amber/20">
+                    <span class="text-xs font-display font-medium text-dex-muted">Shiny &#9733;</span>
+                </label>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="button"
+                        onclick="document.getElementById('add-modal').classList.add('hidden')"
+                        class="flex-1 py-2.5 rounded-lg font-display font-medium text-sm
+                               bg-dex-panel border border-dex-border text-dex-muted
+                               hover:text-dex-cream hover:bg-dex-panel/80 transition-all duration-200">
+                    Cancel
+                </button>
+                <button type="submit"
+                        onclick="document.getElementById('add-modal').classList.add('hidden')"
+                        class="flex-1 py-2.5 rounded-lg font-display font-medium text-sm text-white
+                               bg-gradient-to-r from-dex-red to-dex-red/80
+                               hover:shadow-[0_0_20px_rgba(230,57,70,0.2)] transition-all duration-200">
+                    Add to Vault
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function() {
+    let debounceTimer;
+    const nameInput = document.getElementById('add-pokemon-name');
+    const abilitySelect = document.getElementById('add-ability-select');
+    const statusEl = document.getElementById('add-ability-status');
+
+    nameInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const name = this.value.trim();
+        if (name.length < 2) {
+            abilitySelect.innerHTML = '<option value="">Type a name above to load abilities</option>';
+            statusEl.textContent = '';
+            return;
+        }
+        statusEl.textContent = 'Looking up...';
+        debounceTimer = setTimeout(() => fetchAbilities(name), 400);
+    });
+
+    function fetchAbilities(name) {
+        fetch('/api/pokemon/' + encodeURIComponent(name.toLowerCase()))
+            .then(r => {
+                if (!r.ok) throw new Error('not found');
+                return r.json();
+            })
+            .then(data => {
+                const abilities = data.all_abilities || [];
+                if (abilities.length === 0) {
+                    abilitySelect.innerHTML = '<option value="">No abilities found</option>';
+                    statusEl.textContent = '';
+                    return;
+                }
+                abilitySelect.innerHTML = abilities.map(ab => {
+                    const label = ab.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                    const badge = ab.is_hidden ? ' (H)' : '';
+                    return '<option value="' + ab.name + '">' + label + badge + '</option>';
+                }).join('');
+                statusEl.textContent = abilities.length + ' abilities loaded';
+            })
+            .catch(() => {
+                abilitySelect.innerHTML = '<option value="">Pokemon not found</option>';
+                statusEl.textContent = '';
+            });
+    }
+})();
+</script>
+{% endblock %}

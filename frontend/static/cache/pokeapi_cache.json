@@ -1,0 +1,391 @@
+{
+  "sprigatito": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/906.png",
+    "types": [
+      "grass"
+    ],
+    "abilities": [
+      "overgrow",
+      "protean"
+    ],
+    "all_abilities": [
+      {
+        "name": "overgrow",
+        "is_hidden": false
+      },
+      {
+        "name": "protean",
+        "is_hidden": true
+      }
+    ],
+    "id": 906,
+    "generation": "generation-ix"
+  },
+  "vulpix": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/37.png",
+    "types": [
+      "fire"
+    ],
+    "abilities": [
+      "flash-fire",
+      "drought"
+    ],
+    "all_abilities": [
+      {
+        "name": "flash-fire",
+        "is_hidden": false
+      },
+      {
+        "name": "drought",
+        "is_hidden": true
+      }
+    ],
+    "id": 37,
+    "generation": "generation-i"
+  },
+  "quaxly": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/912.png",
+    "types": [
+      "water"
+    ],
+    "abilities": [
+      "torrent",
+      "moxie"
+    ],
+    "all_abilities": [
+      {
+        "name": "torrent",
+        "is_hidden": false
+      },
+      {
+        "name": "moxie",
+        "is_hidden": true
+      }
+    ],
+    "id": 912,
+    "generation": "generation-ix"
+  },
+  "fuecoco": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/909.png",
+    "types": [
+      "fire"
+    ],
+    "abilities": [
+      "blaze",
+      "unaware"
+    ],
+    "all_abilities": [
+      {
+        "name": "blaze",
+        "is_hidden": false
+      },
+      {
+        "name": "unaware",
+        "is_hidden": true
+      }
+    ],
+    "id": 909,
+    "generation": "generation-ix"
+  },
+  "ceruledge": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/937.png",
+    "types": [
+      "fire",
+      "ghost"
+    ],
+    "abilities": [
+      "flash-fire",
+      "weak-armor"
+    ],
+    "all_abilities": [
+      {
+        "name": "flash-fire",
+        "is_hidden": false
+      },
+      {
+        "name": "weak-armor",
+        "is_hidden": true
+      }
+    ],
+    "id": 937,
+    "generation": "generation-ix"
+  },
+  "cerulege": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/937.png",
+    "types": [
+      "fire",
+      "ghost"
+    ],
+    "abilities": [
+      "flash-fire",
+      "weak-armor"
+    ],
+    "all_abilities": [
+      {
+        "name": "flash-fire",
+        "is_hidden": false
+      },
+      {
+        "name": "weak-armor",
+        "is_hidden": true
+      }
+    ],
+    "id": 937,
+    "generation": "generation-ix"
+  },
+  "iron-boulder": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1022.png",
+    "types": [
+      "rock",
+      "psychic"
+    ],
+    "abilities": [
+      "quark-drive"
+    ],
+    "all_abilities": [
+      {
+        "name": "quark-drive",
+        "is_hidden": false
+      }
+    ],
+    "id": 1022,
+    "generation": "generation-ix"
+  },
+  "iron boulder": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1022.png",
+    "types": [
+      "rock",
+      "psychic"
+    ],
+    "abilities": [
+      "quark-drive"
+    ],
+    "all_abilities": [
+      {
+        "name": "quark-drive",
+        "is_hidden": false
+      }
+    ],
+    "id": 1022,
+    "generation": "generation-ix"
+  },
+  "iron-crown": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1023.png",
+    "types": [
+      "steel",
+      "psychic"
+    ],
+    "abilities": [
+      "quark-drive"
+    ],
+    "all_abilities": [
+      {
+        "name": "quark-drive",
+        "is_hidden": false
+      }
+    ],
+    "id": 1023,
+    "generation": "generation-ix"
+  },
+  "iron crown": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1023.png",
+    "types": [
+      "steel",
+      "psychic"
+    ],
+    "abilities": [
+      "quark-drive"
+    ],
+    "all_abilities": [
+      {
+        "name": "quark-drive",
+        "is_hidden": false
+      }
+    ],
+    "id": 1023,
+    "generation": "generation-ix"
+  },
+  "pansage": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/511.png",
+    "types": [
+      "grass"
+    ],
+    "abilities": [
+      "gluttony",
+      "overgrow"
+    ],
+    "all_abilities": [
+      {
+        "name": "gluttony",
+        "is_hidden": false
+      },
+      {
+        "name": "overgrow",
+        "is_hidden": true
+      }
+    ],
+    "id": 511,
+    "generation": "generation-v"
+  },
+  "pansear": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/513.png",
+    "types": [
+      "fire"
+    ],
+    "abilities": [
+      "gluttony",
+      "blaze"
+    ],
+    "all_abilities": [
+      {
+        "name": "gluttony",
+        "is_hidden": false
+      },
+      {
+        "name": "blaze",
+        "is_hidden": true
+      }
+    ],
+    "id": 513,
+    "generation": "generation-v"
+  },
+  "simisage": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/512.png",
+    "types": [
+      "grass"
+    ],
+    "abilities": [
+      "gluttony",
+      "overgrow"
+    ],
+    "all_abilities": [
+      {
+        "name": "gluttony",
+        "is_hidden": false
+      },
+      {
+        "name": "overgrow",
+        "is_hidden": true
+      }
+    ],
+    "id": 512,
+    "generation": "generation-v"
+  },
+  "pikachu": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
+    "types": [
+      "electric"
+    ],
+    "abilities": [
+      "static",
+      "lightning-rod"
+    ],
+    "all_abilities": [
+      {
+        "name": "static",
+        "is_hidden": false
+      },
+      {
+        "name": "lightning-rod",
+        "is_hidden": true
+      }
+    ],
+    "id": 25,
+    "generation": "generation-i"
+  },
+  "bulbasaur": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "abilities": [
+      "overgrow",
+      "chlorophyll"
+    ],
+    "all_abilities": [
+      {
+        "name": "overgrow",
+        "is_hidden": false
+      },
+      {
+        "name": "chlorophyll",
+        "is_hidden": true
+      }
+    ],
+    "id": 1,
+    "generation": "generation-i"
+  },
+  "charmander": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",
+    "types": [
+      "fire"
+    ],
+    "abilities": [
+      "blaze",
+      "solar-power"
+    ],
+    "all_abilities": [
+      {
+        "name": "blaze",
+        "is_hidden": false
+      },
+      {
+        "name": "solar-power",
+        "is_hidden": true
+      }
+    ],
+    "id": 4,
+    "generation": "generation-i"
+  },
+  "squirtle": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png",
+    "types": [
+      "water"
+    ],
+    "abilities": [
+      "torrent",
+      "rain-dish"
+    ],
+    "all_abilities": [
+      {
+        "name": "torrent",
+        "is_hidden": false
+      },
+      {
+        "name": "rain-dish",
+        "is_hidden": true
+      }
+    ],
+    "id": 7,
+    "generation": "generation-i"
+  },
+  "onix": {
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png",
+    "types": [
+      "rock",
+      "ground"
+    ],
+    "abilities": [
+      "rock-head",
+      "sturdy",
+      "weak-armor"
+    ],
+    "all_abilities": [
+      {
+        "name": "rock-head",
+        "is_hidden": false
+      },
+      {
+        "name": "sturdy",
+        "is_hidden": false
+      },
+      {
+        "name": "weak-armor",
+        "is_hidden": true
+      }
+    ],
+    "id": 95,
+    "generation": "generation-i"
+  }
+}

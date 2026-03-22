@@ -1,0 +1,181 @@
+<tr id="row-{{ name }}" class="group border-b border-dex-border/30 hover:bg-dex-panel/30 transition-colors duration-150">
+    <!-- Sprite (sticky) -->
+    <td class="sticky left-0 z-10 bg-dex-dark group-hover:bg-dex-panel/80 transition-colors px-1 py-1"
+        style="min-width: 52px; width: 52px;">
+        {% if sprites.get(name) %}
+        <img src="{{ sprites[name] }}" alt="{{ name }}"
+             style="width: 40px; height: 40px; image-rendering: pixelated; display: block; margin: auto;"
+             loading="lazy">
+        {% else %}
+        <div style="width: 40px; height: 40px; margin: auto;"
+             class="rounded bg-dex-panel/50 flex items-center justify-center border border-dex-border/30"
+             title="Sprite not found for {{ name | title }}">
+            <svg class="w-6 h-6 text-dex-muted/20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+        </div>
+        {% endif %}
+    </td>
+
+    <!-- Name (sticky) -->
+    <td class="sticky z-10 bg-dex-dark group-hover:bg-dex-panel/80 transition-colors px-3 py-1.5
+               font-display font-medium text-sm text-dex-cream tracking-wide whitespace-nowrap
+               border-r border-dex-border/20"
+        style="left: 52px; min-width: 160px;">
+        <div class="flex items-center gap-1.5">
+            <div class="flex flex-col">
+                <div class="flex items-center gap-1.5">
+                    {% if dex_numbers is defined and dex_numbers.get(name) %}
+                    <span class="text-[9px] font-mono text-dex-muted/40">#{{ dex_numbers[name] }}</span>
+                    {% endif %}
+                    <span>{{ name | title }}</span>
+                    {% if data.get('shiny') %}
+                    <span class="text-dex-amber text-[10px]" title="Shiny">&#9733;</span>
+                    {% endif %}
+                </div>
+                <div class="flex items-center gap-1 mt-0.5">
+                    {% if data.get('form') %}
+                    <span class="text-[9px] font-mono px-1 py-px rounded bg-purple-900/40 border border-purple-500/20 text-purple-300/80">{{ data.form | title }}</span>
+                    {% endif %}
+                    {% if data.get('game') %}
+                    <span class="text-[9px] font-mono px-1 py-px rounded bg-dex-blue/10 border border-dex-blue/20 text-dex-blue/70">{{ data.game }}</span>
+                    {% endif %}
+                    {% if data.get('special') %}
+                    <span class="text-[9px] font-mono px-1 py-px rounded bg-dex-amber/10 border border-dex-amber/20 text-dex-amber/70" title="{{ data.special }}">Event</span>
+                    {% endif %}
+                    <!-- Inline IV editor -->
+                    <span class="iv-display text-[9px] font-mono px-1 py-px rounded cursor-pointer
+                                 {% if data.get('iv') is not none %}bg-teal-900/40 border border-teal-500/20 text-teal-300/80{% else %}bg-dex-panel/30 border border-dex-border/30 text-dex-muted/40{% endif %}
+                                 hover:border-teal-500/40 transition-all duration-150"
+                          title="Click to edit IV"
+                          onclick="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                        {% if data.get('iv') is not none %}IV: {{ data.iv }}{% else %}IV: —{% endif %}
+                    </span>
+                    <form hx-post="/inventory/update-iv/{{ name }}"
+                          hx-target="#row-{{ name }}"
+                          hx-swap="outerHTML"
+                          style="display:none"
+                          class="inline-flex items-center gap-0.5">
+                        <input type="number" name="iv" min="0" max="31"
+                               value="{{ data.iv if data.get('iv') is not none else '' }}"
+                               placeholder="—"
+                               class="w-10 px-1 py-px text-[9px] font-mono rounded
+                                      bg-dex-black border border-teal-500/40 text-teal-300
+                                      focus:outline-none focus:border-teal-400"
+                               onkeydown="if(event.key==='Escape'){this.parentElement.style.display='none'; this.parentElement.previousElementSibling.style.display='';}"
+                               onfocus="this.select();">
+                        <button type="submit"
+                                class="px-1 py-px text-[9px] rounded bg-teal-900/40 border border-teal-500/20 text-teal-300/80
+                                       hover:bg-teal-900/60 transition-colors">
+                            &#10003;
+                        </button>
+                        <button type="button"
+                                onclick="this.parentElement.style.display='none'; this.parentElement.previousElementSibling.style.display='';"
+                                class="px-1 py-px text-[9px] rounded bg-dex-panel border border-dex-border/30 text-dex-muted/50
+                                       hover:text-dex-muted transition-colors">
+                            &#10005;
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <button hx-delete="/inventory/remove/{{ name }}"
+                    hx-target="#row-{{ name }}"
+                    hx-swap="outerHTML"
+                    hx-confirm="Remove {{ name | title }}?"
+                    class="opacity-0 group-hover:opacity-100 text-dex-muted hover:text-dex-red transition-all duration-200 text-xs ml-auto"
+                    title="Remove">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </td>
+
+    <!-- Abilities (sticky) -->
+    <td class="sticky z-10 bg-dex-dark group-hover:bg-dex-panel/80 transition-colors
+               px-3 py-1.5
+               border-r-2 border-dex-red/10 shadow-[2px_0_8px_rgba(0,0,0,0.3)]"
+        style="left: 240px;">
+        <div class="flex items-center gap-1.5 max-w-[220px]">
+            {% set possible = ability_options.get(name, []) if ability_options is defined else [] %}
+            {% if possible %}
+                {# Determine the displayed ability: first active that exists in options, else first non-hidden #}
+                {% set ns = namespace(displayed=none, displayed_hidden=false) %}
+                {% if data.abilities %}
+                    {% for ab in possible %}
+                        {% if ab.name == data.abilities[0] and ns.displayed is none %}
+                            {% set ns.displayed = ab.name %}
+                            {% set ns.displayed_hidden = ab.is_hidden %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% if ns.displayed is none %}
+                    {% for ab in possible %}
+                        {% if not ab.is_hidden and ns.displayed is none %}
+                            {% set ns.displayed = ab.name %}
+                            {% set ns.displayed_hidden = false %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% if ns.displayed is none and possible | length > 0 %}
+                    {% set ns.displayed = possible[0].name %}
+                    {% set ns.displayed_hidden = possible[0].is_hidden %}
+                {% endif %}
+
+                {% if ns.displayed %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono
+                             bg-dex-panel border border-dex-amber/40 text-dex-amber cursor-default"
+                      title="{% if ns.displayed_hidden %}Hidden Ability: {% endif %}{{ ns.displayed | title }}">
+                    {% if ns.displayed_hidden %}<span class="text-[8px] mr-0.5 opacity-60">H</span>{% endif %}{{ ns.displayed | title }}
+                </span>
+                {% endif %}
+
+                {% if possible | length > 1 %}
+                <button hx-post="/inventory/cycle-ability/{{ name }}"
+                        hx-target="#row-{{ name }}"
+                        hx-swap="outerHTML"
+                        class="inline-flex items-center justify-center w-5 h-5 rounded
+                               text-[10px] font-mono cursor-pointer
+                               bg-transparent border border-dex-border/30 text-dex-muted/50
+                               hover:border-dex-muted/60 hover:text-dex-muted/80
+                               transition-all duration-200"
+                        title="Cycle ability ({{ possible | length }} available)">
+                    &#x27F3;
+                </button>
+                {% endif %}
+            {% else %}
+                {% for ability in data.abilities %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono
+                             bg-dex-panel border border-dex-amber/40 text-dex-amber cursor-default">
+                    {{ ability | title }}
+                </span>
+                {% endfor %}
+                {% if not data.abilities %}
+                <span class="text-dex-muted/30 text-[10px] font-mono italic">none</span>
+                {% endif %}
+            {% endif %}
+        </div>
+    </td>
+
+    <!-- Pokeball cells -->
+    {% for ball in pokeball_types %}
+    <td class="px-0 py-0 text-center">
+        <button hx-post="/inventory/toggle/{{ name }}/{{ ball }}"
+                hx-target="#row-{{ name }}"
+                hx-swap="outerHTML"
+                class="w-full h-full flex items-center justify-center py-2 px-1
+                       hover:bg-dex-red/10 transition-all duration-150 cursor-pointer"
+                title="{{ ball | replace('_', ' ') | title }} Ball">
+            {% if ball in data.pokeballs %}
+            <img src="{{ pokeball_sprites[ball] }}" alt="{{ ball }}"
+                 class="w-5 h-5" style="image-rendering: pixelated;">
+            {% else %}
+            <img src="{{ pokeball_sprites[ball] }}" alt="{{ ball }}"
+                 class="w-5 h-5 opacity-[0.12] grayscale
+                        hover:opacity-30 transition-opacity duration-200"
+                 style="image-rendering: pixelated;">
+            {% endif %}
+        </button>
+    </td>
+    {% endfor %}
+</tr>

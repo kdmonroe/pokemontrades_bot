@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PokéTrade Vault{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Theme initialization (before render to prevent flash) -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('theme');
+            if (theme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'dex-black': 'var(--bg-primary)',
+                        'dex-dark': 'var(--bg-secondary)',
+                        'dex-panel': 'var(--bg-panel)',
+                        'dex-border': 'var(--border)',
+                        'dex-cream': 'var(--text-primary)',
+                        'dex-muted': 'var(--text-muted)',
+                        'dex-red': '#e63946',
+                        'dex-red-glow': '#ff1744',
+                        'dex-mint': '#00e676',
+                        'dex-amber': '#ffc400',
+                        'dex-blue': '#448aff',
+                    },
+                    fontFamily: {
+                        'display': ['Chakra Petch', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                        'body': ['Outfit', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Theme CSS variables */
+        :root {
+            --bg-primary: #f8f7f4;
+            --bg-secondary: #ffffff;
+            --bg-panel: #f0eeeb;
+            --border: #d4d0c8;
+            --text-primary: #1a1a2e;
+            --text-muted: #6b6b8a;
+        }
+
+        .dark {
+            --bg-primary: #16161e;
+            --bg-secondary: #1e1e2a;
+            --bg-panel: #262636;
+            --border: #383850;
+            --text-primary: #f5f0e8;
+            --text-muted: #8888a8;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dark body {
+            background-image:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.008) 2px,
+                    rgba(255, 255, 255, 0.008) 4px
+                );
+        }
+
+        /* Scanline overlay — dark mode only */
+        .dark .scanlines::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 1px,
+                rgba(0, 0, 0, 0.15) 1px,
+                rgba(0, 0, 0, 0.15) 2px
+            );
+            z-index: 9999;
+        }
+
+        /* Red glow accent */
+        .glow-red {
+            box-shadow: 0 0 20px rgba(230, 57, 70, 0.15),
+                        0 0 60px rgba(230, 57, 70, 0.05);
+        }
+        :root:not(.dark) .glow-red {
+            box-shadow: 0 0 10px rgba(230, 57, 70, 0.08);
+        }
+
+        .glow-red-text {
+            text-shadow: 0 0 20px rgba(230, 57, 70, 0.4);
+        }
+        :root:not(.dark) .glow-red-text {
+            text-shadow: none;
+        }
+
+        /* Navbar indicator light */
+        .indicator-light {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00e676;
+            box-shadow: 0 0 6px #00e676, 0 0 12px rgba(0, 230, 118, 0.3);
+            animation: pulse-light 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-light {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Smooth transitions for HTMX */
+        .htmx-settling { opacity: 0.8; }
+        .htmx-swapping { opacity: 0.5; transition: opacity 0.1s ease-out; }
+        .htmx-added { opacity: 0; animation: fadeIn 0.3s ease-out forwards; }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Flash messages */
+        .flash-enter {
+            animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Custom scrollbar */
+        .dark ::-webkit-scrollbar { width: 6px; height: 6px; }
+        .dark ::-webkit-scrollbar-track { background: #1e1e2a; }
+        .dark ::-webkit-scrollbar-thumb { background: #383850; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #4a4a6d; }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="scanlines font-body text-dex-cream min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-dex-dark/90 backdrop-blur-md border-b border-dex-border">
+        <div class="max-w-[1800px] mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-14">
+                <!-- Logo & Brand -->
+                <a href="{{ url_for('home.home') }}" class="flex items-center gap-3 no-underline">
+                    <div class="relative w-8 h-8 flex-shrink-0">
+                        <div class="absolute inset-0 rounded-full border-2 border-dex-red overflow-hidden">
+                            <div class="absolute top-0 left-0 right-0 h-1/2 bg-dex-red"></div>
+                            <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-dex-panel"></div>
+                        </div>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-dex-dark border-2 border-dex-red"></div>
+                    </div>
+                    <span class="font-display font-bold text-lg tracking-wide">
+                        <span class="text-dex-red glow-red-text">Poke</span><span class="text-dex-cream">Trade</span>
+                        <span class="text-dex-muted font-normal text-xs ml-1 tracking-widest uppercase">Vault</span>
+                    </span>
+                </a>
+
+                <!-- Nav Links -->
+                <div class="flex items-center gap-1">
+                    <!-- Home — always visible -->
+                    <a href="{{ url_for('home.home') }}"
+                       class="px-3 py-1.5 text-sm font-display font-medium tracking-wide rounded
+                              {% if request.path == '/home' or request.path == '/' %}
+                              text-dex-red bg-dex-red/10 border border-dex-red/20
+                              {% else %}
+                              text-dex-muted hover:text-dex-cream hover:bg-dex-panel/50
+                              {% endif %}
+                              transition-all duration-200">
+                        Home
+                    </a>
+
+                    {% if session.get('logged_in') %}
+                    <a href="{{ url_for('inventory.index') }}"
+                       class="px-3 py-1.5 text-sm font-display font-medium tracking-wide rounded
+                              {% if request.path.startswith('/inventory') and 'upload' not in request.path %}
+                              text-dex-red bg-dex-red/10 border border-dex-red/20
+                              {% else %}
+                              text-dex-muted hover:text-dex-cream hover:bg-dex-panel/50
+                              {% endif %}
+                              transition-all duration-200">
+                        Inventory
+                    </a>
+                    <a href="{{ url_for('inventory.upload_form') }}"
+                       class="px-3 py-1.5 text-sm font-display font-medium tracking-wide rounded
+                              {% if 'upload' in request.path %}
+                              text-dex-red bg-dex-red/10 border border-dex-red/20
+                              {% else %}
+                              text-dex-muted hover:text-dex-cream hover:bg-dex-panel/50
+                              {% endif %}
+                              transition-all duration-200">
+                        Upload
+                    </a>
+
+                    <div class="w-px h-5 bg-dex-border mx-2"></div>
+
+                    <div class="flex items-center gap-2 mr-2">
+                        <div class="indicator-light"></div>
+                        <span class="text-xs font-mono text-dex-muted">{{ session.get('username', 'trainer') }}</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Light/Dark toggle -->
+                    <button id="theme-toggle"
+                            onclick="toggleTheme()"
+                            class="p-2 rounded text-dex-muted hover:text-dex-cream hover:bg-dex-panel/50
+                                   transition-all duration-200"
+                            title="Toggle light/dark mode">
+                        <!-- Moon icon (shown in dark mode) -->
+                        <svg id="icon-moon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                        <!-- Sun icon (shown in light mode) -->
+                        <svg id="icon-sun" class="w-4 h-4" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </button>
+
+                    {% if session.get('logged_in') %}
+                    <a href="{{ url_for('auth.logout') }}"
+                       class="px-3 py-1.5 text-sm font-display font-medium tracking-wide rounded
+                              text-dex-muted hover:text-dex-red hover:bg-dex-red/5
+                              transition-all duration-200">
+                        Logout
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="fixed top-16 right-4 z-40 flex flex-col gap-2 max-w-sm">
+        {% for category, message in messages %}
+        <div class="flash-enter flex items-center gap-3 px-4 py-3 rounded-lg border backdrop-blur-md
+                    {% if category == 'error' %}
+                    bg-red-950/80 border-dex-red/30 text-red-200
+                    {% elif category == 'success' %}
+                    bg-emerald-950/80 border-dex-mint/30 text-emerald-200
+                    {% else %}
+                    bg-dex-panel/80 border-dex-border text-dex-cream
+                    {% endif %}"
+             onclick="this.remove()">
+            <div class="w-1.5 h-1.5 rounded-full flex-shrink-0
+                        {% if category == 'error' %}bg-dex-red{% elif category == 'success' %}bg-dex-mint{% else %}bg-dex-blue{% endif %}">
+            </div>
+            <span class="text-sm font-body">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.flash-enter').forEach(el => {
+                el.style.transition = 'opacity 0.5s, transform 0.5s';
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(20px)';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 4000);
+    </script>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="max-w-[1800px] mx-auto">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Theme toggle script -->
+    <script>
+        (function() {
+            function updateIcons() {
+                var isDark = document.documentElement.classList.contains('dark');
+                var moon = document.getElementById('icon-moon');
+                var sun = document.getElementById('icon-sun');
+                if (moon) moon.style.display = isDark ? 'block' : 'none';
+                if (sun) sun.style.display = isDark ? 'none' : 'block';
+            }
+
+            window.toggleTheme = function() {
+                var html = document.documentElement;
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    html.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+                updateIcons();
+            };
+
+            updateIcons();
+        })();
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

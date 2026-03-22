@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}PokéTrade Vault — Login{% endblock %}
+
+{% block head %}
+<style>
+    .login-container {
+        position: relative;
+    }
+
+    .login-container::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        right: -1px;
+        bottom: -1px;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, #e63946 0%, transparent 40%, transparent 60%, #e63946 100%);
+        opacity: 0.3;
+        z-index: -1;
+    }
+
+    .pokeball-bg {
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        border: 3px solid rgba(230, 57, 70, 0.06);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .pokeball-bg::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: rgba(230, 57, 70, 0.06);
+        transform: translateY(-50%);
+    }
+
+    .pokeball-bg::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid rgba(230, 57, 70, 0.06);
+    }
+
+    .input-field {
+        background: rgba(22, 22, 30, 0.6);
+        border: 1px solid #383850;
+        transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+        border-color: #e63946;
+        box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1),
+                    0 0 20px rgba(230, 57, 70, 0.05);
+        outline: none;
+    }
+
+    .login-btn {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #c62828 0%, #e63946 50%, #c62828 100%);
+        background-size: 200% 200%;
+        transition: all 0.4s ease;
+    }
+
+    .login-btn:hover {
+        background-position: 100% 100%;
+        box-shadow: 0 4px 30px rgba(230, 57, 70, 0.3),
+                    0 0 60px rgba(230, 57, 70, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .login-btn:active {
+        transform: translateY(0);
+    }
+
+    .login-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .login-btn:hover::after {
+        left: 100%;
+    }
+
+    @keyframes float-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-float { animation: float-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .delay-3 { animation-delay: 0.3s; opacity: 0; }
+    .delay-4 { animation-delay: 0.4s; opacity: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 py-12 relative overflow-hidden">
+    <!-- Background Pokeball watermark -->
+    <div class="pokeball-bg"></div>
+
+    <!-- Ambient glow -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-dex-red/[0.03] rounded-full blur-[100px]"></div>
+
+    <div class="w-full max-w-md relative">
+        <!-- Top accent bar -->
+        <div class="animate-float flex items-center gap-3 mb-8">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent to-dex-border"></div>
+            <div class="flex gap-1.5">
+                <div class="w-2 h-2 rounded-full bg-dex-red shadow-[0_0_8px_rgba(230,57,70,0.5)]"></div>
+                <div class="w-2 h-2 rounded-full bg-dex-amber shadow-[0_0_8px_rgba(255,196,0,0.3)]"></div>
+                <div class="w-2 h-2 rounded-full bg-dex-mint shadow-[0_0_8px_rgba(0,230,118,0.3)]"></div>
+            </div>
+            <div class="h-px flex-1 bg-gradient-to-l from-transparent to-dex-border"></div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-container">
+            <div class="bg-dex-dark/95 backdrop-blur-xl rounded-2xl border border-dex-border p-8 sm:p-10">
+                <!-- Header -->
+                <div class="text-center mb-8 animate-float delay-1">
+                    <!-- Mini Pokeball -->
+                    <div class="relative w-16 h-16 mx-auto mb-5">
+                        <div class="absolute inset-0 rounded-full border-[3px] border-dex-red overflow-hidden glow-red">
+                            <div class="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-dex-red to-dex-red/90"></div>
+                            <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-dex-panel"></div>
+                        </div>
+                        <div class="absolute top-1/2 left-0 right-0 h-[3px] bg-dex-dark -translate-y-1/2"></div>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-dex-dark border-[3px] border-dex-red"></div>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-dex-cream/80"></div>
+                    </div>
+
+                    <h1 class="font-display font-bold text-2xl tracking-wide">
+                        <span class="text-dex-red glow-red-text">Trainer</span> Login
+                    </h1>
+                    <p class="text-dex-muted text-sm mt-2 font-body">
+                        Access your trade inventory vault
+                    </p>
+                </div>
+
+                <!-- Form -->
+                <form method="POST" class="space-y-5">
+                    <div class="animate-float delay-2">
+                        <label for="username" class="block text-xs font-display font-medium tracking-widest uppercase text-dex-muted mb-2">
+                            Trainer ID
+                        </label>
+                        <input type="text"
+                               id="username"
+                               name="username"
+                               required
+                               autocomplete="username"
+                               placeholder="Enter your username"
+                               class="input-field w-full px-4 py-3 rounded-lg text-dex-cream font-mono text-sm placeholder:text-dex-muted/40">
+                    </div>
+
+                    <div class="animate-float delay-3">
+                        <label for="password" class="block text-xs font-display font-medium tracking-widest uppercase text-dex-muted mb-2">
+                            Passcode
+                        </label>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               required
+                               autocomplete="current-password"
+                               placeholder="Enter your password"
+                               class="input-field w-full px-4 py-3 rounded-lg text-dex-cream font-mono text-sm placeholder:text-dex-muted/40">
+                    </div>
+
+                    <div class="animate-float delay-4 pt-2">
+                        <button type="submit"
+                                class="login-btn w-full py-3 rounded-lg font-display font-semibold tracking-wider text-white text-sm uppercase">
+                            Enter Vault
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Footer -->
+                <div class="mt-8 pt-5 border-t border-dex-border/50 animate-float delay-4">
+                    <p class="text-center text-xs text-dex-muted/60 font-mono">
+                        SYSTEM v1.0 &mdash; AUTHORIZED TRAINERS ONLY
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

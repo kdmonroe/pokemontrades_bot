@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Upload — PokéTrade Vault{% endblock %}
+
+{% block head %}
+<style>
+    .drop-zone {
+        position: relative;
+        border: 2px dashed var(--border);
+        transition: all 0.3s ease;
+    }
+
+    .drop-zone.dragover {
+        border-color: #e63946;
+        background: rgba(230, 57, 70, 0.05);
+        box-shadow: 0 0 40px rgba(230, 57, 70, 0.08) inset;
+    }
+
+    .drop-zone:hover {
+        border-color: var(--text-muted);
+    }
+
+    .file-icon {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .drop-zone:hover .file-icon,
+    .drop-zone.dragover .file-icon {
+        transform: translateY(-4px);
+    }
+
+    .upload-btn {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #c62828 0%, #e63946 50%, #c62828 100%);
+        background-size: 200% 200%;
+        transition: all 0.4s ease;
+    }
+
+    .upload-btn:hover {
+        background-position: 100% 100%;
+        box-shadow: 0 4px 30px rgba(230, 57, 70, 0.25);
+    }
+
+    .upload-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .file-badge {
+        animation: badge-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes badge-in {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    .spinner { animation: spin 0.8s linear infinite; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-lg">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="font-display font-bold text-xl tracking-wide">
+                <span class="text-dex-red glow-red-text">Upload</span> Inventory
+            </h1>
+            <p class="text-dex-muted text-sm mt-2">
+                Import your Pokemon collection from a CSV or XLSX file
+            </p>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="bg-dex-dark/95 border border-dex-border rounded-xl p-6 glow-red">
+
+            <!-- Current inventory status -->
+            {% if has_inventory %}
+            <div class="mb-5 p-3 rounded-lg bg-dex-panel/50 border border-dex-mint/20 flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-dex-mint"></div>
+                <span class="text-xs font-mono text-dex-mint/80">
+                    Current inventory: {{ pokemon_count }} Pokemon loaded
+                </span>
+                <span class="text-[10px] text-dex-muted ml-auto">Uploading will replace current data</span>
+            </div>
+            {% endif %}
+
+            <form method="POST"
+                  enctype="multipart/form-data"
+                  action="{{ url_for('inventory.upload') }}"
+                  id="upload-form"
+                  onsubmit="onFormSubmit()">
+
+                <!-- Drop Zone -->
+                <div id="drop-zone"
+                     class="drop-zone rounded-xl p-10 text-center cursor-pointer"
+                     onclick="document.getElementById('file-input').click()">
+
+                    <!-- Icon -->
+                    <div class="file-icon flex justify-center mb-5">
+                        <div class="relative">
+                            <svg class="w-14 h-14 text-dex-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                      d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <div class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-dex-red/20 border border-dex-red/40
+                                        flex items-center justify-center">
+                                <svg class="w-3 h-3 text-dex-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="font-display font-medium text-dex-cream text-sm mb-1">
+                        Drop your file here, or <span class="text-dex-red">browse</span>
+                    </p>
+                    <p class="text-dex-muted text-xs font-mono">
+                        CSV or XLSX &mdash; Max 16 MB
+                    </p>
+
+                    <!-- Selected file display -->
+                    <div id="file-info" class="hidden mt-4">
+                        <div class="file-badge inline-flex items-center gap-2 px-3 py-2 rounded-lg
+                                    bg-dex-panel border border-dex-border">
+                            <div id="file-indicator" class="w-2 h-2 rounded-full bg-dex-mint"></div>
+                            <span id="file-name" class="text-xs font-mono text-dex-cream"></span>
+                            <button type="button" onclick="event.stopPropagation(); clearFile()"
+                                    class="text-dex-muted hover:text-dex-red transition-colors ml-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="file"
+                           id="file-input"
+                           name="file"
+                           accept=".csv,.xlsx"
+                           class="hidden"
+                           onchange="handleFile(this)">
+                </div>
+
+                <!-- Submit -->
+                <button type="submit"
+                        id="upload-btn"
+                        disabled
+                        class="upload-btn w-full mt-5 py-3 rounded-lg font-display font-semibold
+                               tracking-wider text-white text-sm uppercase flex items-center justify-center gap-2">
+                    <span id="btn-text">Upload & Import</span>
+                    <svg id="btn-spinner" class="hidden spinner w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                </button>
+            </form>
+
+            <!-- Format hints -->
+            <div class="mt-6 pt-5 border-t border-dex-border/50">
+                <p class="text-xs font-display font-medium text-dex-muted/60 tracking-widest uppercase mb-3">
+                    Expected Format
+                </p>
+                <div class="bg-dex-black/50 rounded-lg p-3 overflow-x-auto">
+                    <code class="text-[10px] font-mono text-dex-muted leading-relaxed whitespace-pre">Pokemon,Ability,love,dream,beast,moon,...
+Sprigatito,,,,,,
+Quaxly,,,,,,x</code>
+                </div>
+                <p class="text-[10px] font-mono text-dex-muted/40 mt-2">
+                    Columns: Pokemon, Ability, then one column per Pokeball type with "x" marks
+                </p>
+            </div>
+        </div>
+
+        <!-- Back link -->
+        <div class="text-center mt-6">
+            <a href="{{ url_for('inventory.index') }}"
+               class="text-sm font-display text-dex-muted hover:text-dex-cream transition-colors">
+                &larr; Back to Inventory
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileIndicator = document.getElementById('file-indicator');
+    const uploadBtn = document.getElementById('upload-btn');
+
+    ['dragenter', 'dragover'].forEach(event => {
+        dropZone.addEventListener(event, e => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(event => {
+        dropZone.addEventListener(event, e => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+        });
+    });
+
+    dropZone.addEventListener('drop', e => {
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            fileInput.files = files;
+            handleFile(fileInput);
+        }
+    });
+
+    function handleFile(input) {
+        if (input.files.length) {
+            const file = input.files[0];
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext === 'csv' || ext === 'xlsx') {
+                fileName.textContent = file.name;
+                fileIndicator.className = 'w-2 h-2 rounded-full bg-dex-mint';
+                fileInfo.classList.remove('hidden');
+                uploadBtn.disabled = false;
+            } else {
+                fileName.textContent = 'Invalid file type: .' + ext;
+                fileIndicator.className = 'w-2 h-2 rounded-full bg-dex-red';
+                fileInfo.classList.remove('hidden');
+                uploadBtn.disabled = true;
+            }
+        }
+    }
+
+    function clearFile() {
+        fileInput.value = '';
+        fileInfo.classList.add('hidden');
+        uploadBtn.disabled = true;
+    }
+
+    function onFormSubmit() {
+        uploadBtn.disabled = true;
+        document.getElementById('btn-text').textContent = 'Uploading...';
+        document.getElementById('btn-spinner').classList.remove('hidden');
+    }
+</script>
+{% endblock %}

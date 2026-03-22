@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}PokéTrade Vault — Home{% endblock %}
+
+{% block head %}
+<style>
+    @keyframes float-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-float { animation: float-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .delay-3 { animation-delay: 0.3s; opacity: 0; }
+    .delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+    .feature-card {
+        transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+        border-color: rgba(230, 57, 70, 0.3);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 py-12 relative overflow-hidden">
+    <!-- Background glow -->
+    <div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-dex-red/[0.03] rounded-full blur-[100px]"></div>
+
+    <div class="w-full max-w-2xl relative">
+        <!-- Hero -->
+        <div class="text-center mb-10 animate-float">
+            <!-- Pokeball Icon -->
+            <div class="relative w-20 h-20 mx-auto mb-6">
+                <div class="absolute inset-0 rounded-full border-[3px] border-dex-red overflow-hidden glow-red">
+                    <div class="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-dex-red to-dex-red/90"></div>
+                    <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-dex-panel"></div>
+                </div>
+                <div class="absolute top-1/2 left-0 right-0 h-[3px] bg-dex-dark -translate-y-1/2"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-dex-dark border-[3px] border-dex-red"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-dex-cream/80"></div>
+            </div>
+
+            <h1 class="font-display font-bold text-3xl tracking-wide mb-3">
+                <span class="text-dex-red glow-red-text">Poke</span>Trade Vault
+            </h1>
+            <p class="text-dex-muted text-base font-body max-w-md mx-auto leading-relaxed">
+                A Pokemon trade inventory manager that tracks your collection across
+                36 Pokeball types, with real-time trade opportunity detection from r/pokemontrades.
+            </p>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 animate-float delay-1">
+            <div class="feature-card bg-dex-dark border border-dex-border rounded-xl p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-8 h-8 rounded-lg bg-dex-red/10 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-dex-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display font-semibold text-sm text-dex-cream">Inventory Grid</h3>
+                </div>
+                <p class="text-xs text-dex-muted leading-relaxed">
+                    View your entire collection in a matrix grid. Toggle Pokeball captures with a single click.
+                    Filter by name, type, generation, or ball.
+                </p>
+            </div>
+
+            <div class="feature-card bg-dex-dark border border-dex-border rounded-xl p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-8 h-8 rounded-lg bg-dex-mint/10 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-dex-mint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display font-semibold text-sm text-dex-cream">Import &amp; Export</h3>
+                </div>
+                <p class="text-xs text-dex-muted leading-relaxed">
+                    Upload CSV or XLSX files with your Pokemon data. Export your updated inventory
+                    back to CSV at any time.
+                </p>
+            </div>
+
+            <div class="feature-card bg-dex-dark border border-dex-border rounded-xl p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-8 h-8 rounded-lg bg-dex-amber/10 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-dex-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display font-semibold text-sm text-dex-cream">LLM Trade Parsing</h3>
+                </div>
+                <p class="text-xs text-dex-muted leading-relaxed">
+                    A fine-tuned GPT model reads Reddit trade posts and extracts structured data
+                    including IVs, abilities, natures, and Pokeball types.
+                </p>
+            </div>
+
+            <div class="feature-card bg-dex-dark border border-dex-border rounded-xl p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-8 h-8 rounded-lg bg-dex-blue/10 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-dex-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display font-semibold text-sm text-dex-cream">Email Alerts</h3>
+                </div>
+                <p class="text-xs text-dex-muted leading-relaxed">
+                    Get notified via AWS SES when a trade opportunity on r/pokemontrades matches
+                    your inventory needs.
+                </p>
+            </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 animate-float delay-2">
+            {% if session.get('logged_in') %}
+            <a href="{{ url_for('inventory.index') }}"
+               class="px-6 py-3 rounded-lg font-display font-semibold text-sm text-white tracking-wider uppercase
+                      bg-gradient-to-r from-dex-red to-dex-red/80
+                      hover:shadow-[0_0_20px_rgba(230,57,70,0.3)] transition-all duration-300">
+                Go to Inventory
+            </a>
+            <a href="{{ url_for('inventory.upload_form') }}"
+               class="px-6 py-3 rounded-lg font-display font-medium text-sm text-dex-cream tracking-wider
+                      bg-dex-panel border border-dex-border
+                      hover:border-dex-muted hover:bg-dex-panel/80 transition-all duration-200">
+                Upload a File
+            </a>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}"
+               class="px-6 py-3 rounded-lg font-display font-semibold text-sm text-white tracking-wider uppercase
+                      bg-gradient-to-r from-dex-red to-dex-red/80
+                      hover:shadow-[0_0_20px_rgba(230,57,70,0.3)] transition-all duration-300">
+                Login to Get Started
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Footer note -->
+        <div class="text-center mt-10 animate-float delay-3">
+            <p class="text-[10px] font-mono text-dex-muted/40 tracking-wide">
+                SYSTEM v1.0 &mdash; FLASK + HTMX + TAILWIND &mdash; POKEAPI INTEGRATION
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
